@@ -1,0 +1,83 @@
+const slides=[
+"img/foto1.jpg",
+"img/foto2.jpg",
+"img/foto3.jpg",
+"img/foto4.jpg"
+];
+
+let index=0;
+let auto=true;
+let timer;
+
+const img=document.getElementById("mainImage");
+const thumbs=document.querySelectorAll(".thumbs img");
+const current=document.getElementById("current");
+const music=document.getElementById("music");
+
+function render(){
+img.style.opacity="0.2";
+setTimeout(()=>{
+img.src=slides[index];
+img.style.opacity="1";
+},250);
+
+thumbs.forEach((el,i)=>{
+el.classList.toggle("active",i===index);
+});
+
+current.textContent=index+1;
+}
+
+function nextSlide(){
+index=(index+1)%slides.length;
+render();
+}
+
+function prevSlide(){
+index=(index-1+slides.length)%slides.length;
+render();
+}
+
+function goTo(i){
+index=i;
+render();
+}
+
+function startAuto(){
+timer=setInterval(nextSlide,3000);
+}
+
+function stopAuto(){
+clearInterval(timer);
+}
+
+function toggleAuto(){
+if(auto){startAuto();}else{stopAuto();}
+}
+
+function toggleMusic(){
+if(music.paused){
+music.play();
+}else{
+music.pause();
+}
+}
+
+function fullscreen(){
+document.documentElement.requestFullscreen();
+}
+
+let startX=0;
+
+img.addEventListener("touchstart",(e)=>{
+startX=e.touches[0].clientX;
+});
+
+img.addEventListener("touchend",(e)=>{
+let endX=e.changedTouches[0].clientX;
+if(startX-endX>50) nextSlide();
+if(endX-startX>50) prevSlide();
+});
+
+startAuto();
+render();
