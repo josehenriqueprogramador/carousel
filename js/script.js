@@ -8,7 +8,8 @@ const slides=[
   "img/foto7.jpg",
   "img/foto8.jpg",
   "img/foto9.jpg",
-  "img/foto10.jpg"
+  "img/foto10.jpg",
+  "img/foto11.jpg"
 ];
 
 let index = 0;
