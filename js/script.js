@@ -1,33 +1,22 @@
-const slides=[
-  "img/foto1.jpg",
-  "img/foto2.jpg",
-  "img/foto3.jpg",
-  "img/foto4.jpg",
-  "img/foto5.jpg",
-  "img/foto6.jpg",
-  "img/foto7.jpg",
-  "img/foto8.jpg",
-  "img/foto9.jpg",
-  "img/foto10.jpg",
-  "img/foto11.jpg",
-  "img/foto12.jpg",
+const slides = [
+  "img/foto1.jpg", "img/foto2.jpg", "img/foto3.jpg", "img/foto4.jpg", 
+  "img/foto5.jpg", "img/foto6.jpg", "img/foto7.jpg", "img/foto8.jpg", 
+  "img/foto9.jpg", "img/foto10.jpg", "img/foto11.jpg", "img/foto12.jpg", 
   "img/foto13.jpg"
 ];
 
 let index = 0;
-let auto = true;
+let isPaused = false;
 let timer;
+let startX = 0;
 
 const img = document.getElementById("mainImage");
 const thumbs = document.querySelectorAll(".thumbs img");
 const current = document.getElementById("current");
-const music = document.getElementById("music");
-
-// Selecionando os textos que vão mudar
 const tituloFoto = document.getElementById("titulo-foto");
 const descFoto = document.getElementById("desc-foto");
 
-function render(){
+function render() {
   img.style.opacity = "0.2";
   setTimeout(() => {
     img.src = slides[index];
@@ -40,7 +29,6 @@ function render(){
 
   current.textContent = index + 1;
 
-  // Lógica para mudar o texto na foto 10 (índice 9)
   if (tituloFoto && descFoto) {
     if (index >= 9) {
       tituloFoto.innerText = "Equipe Spirit Fight";
@@ -52,56 +40,75 @@ function render(){
   }
 }
 
-function nextSlide(){
+function nextSlide() {
   index = (index + 1) % slides.length;
   render();
 }
 
-function prevSlide(){
+function prevSlide() {
   index = (index - 1 + slides.length) % slides.length;
   render();
 }
 
-function goTo(i){
+function goTo(i) {
   index = i;
   render();
 }
 
-function startAuto(){
+function startAuto() {
+  stopAuto();
   timer = setInterval(nextSlide, 3000);
 }
 
-function stopAuto(){
+function stopAuto() {
   clearInterval(timer);
 }
 
-function toggleAuto(){
-  if(auto){ startAuto(); } else { stopAuto(); }
-}
-
-function toggleMusic(){
-  if(music.paused){
-    music.play();
+function toggleFreeze() {
+  const btn = document.getElementById("btnFreeze");
+  if (isPaused) {
+    startAuto();
+    btn.innerText = "⏸️";
+    isPaused = false;
   } else {
-    music.pause();
+    stopAuto();
+    btn.innerText = "▶️";
+    isPaused = true;
   }
 }
 
-function fullscreen(){
-  document.documentElement.requestFullscreen();
+async function downloadImage() {
+  const imageUrl = slides[index];
+  try {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'foto_' + (index + 1) + '.jpg';
+    document.body.appendChild(link);
+    link.click();
+    
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Erro ao baixar:", err);
+    alert("Erro ao baixar a imagem.");
+  }
 }
 
-let startX = 0;
-
+// Eventos de toque para deslizar
 img.addEventListener("touchstart", (e) => {
   startX = e.touches[0].clientX;
 });
 
 img.addEventListener("touchend", (e) => {
   let endX = e.changedTouches[0].clientX;
-  if(startX - endX > 50) nextSlide();
-  if(endX - startX > 50) prevSlide();
+  if (startX - endX > 50) nextSlide();
+  else if (endX - startX > 50) prevSlide();
 });
 
+// Inicia
 startAuto();
 render();
